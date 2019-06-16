@@ -1,6 +1,6 @@
 # Deep Reinforcement Learning Code
 Currently threr are only the codes for distributional reinforcement learning here.
-Thanks to [sungyubkim](<https://github.com/sungyubkim>) and [Shangtong Zhang](<https://github.com/ShangtongZhang>)
+Thanks to [sungyubkim](<https://github.com/sungyubkim>) and [Shangtong Zhang](<https://github.com/ShangtongZhang>)!
 A lot of my code references their implementations.
 
 ## Dendency
