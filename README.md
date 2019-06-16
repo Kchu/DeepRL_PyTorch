@@ -5,7 +5,7 @@ Thanks to [sungyubkim](<https://github.com/sungyubkim>) and [Shangtong Zhang](<h
 
 A lot of my codes references their implementations.
 
-## Dendency
+## Dependency:
 
 * pytorch
 * gym
