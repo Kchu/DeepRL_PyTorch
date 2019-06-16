@@ -1,2 +1,2 @@
-# Reinforcement-Learning_CK
+# Deep Reinforcement Learning
 Reinforcement Learning
