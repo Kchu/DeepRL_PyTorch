@@ -417,7 +417,7 @@ for step in range(1, STEP_NUM//N_ENVS + 1):
 
     if RENDERING:
         env.render()
-
+print("The training is done!")
 ## plot the figure
 # plt.plot(range(len(result)), result, label="QUOTA")
 # plt.legend()

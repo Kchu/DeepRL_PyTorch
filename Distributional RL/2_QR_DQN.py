@@ -69,8 +69,8 @@ LOAD = False
 # save frequency
 SAVE_FREQ = int(1e+3)
 # paths for predction net, target net, result log
-PRED_PATH = './data/model/qr_pred_net.pkl'
-TARGET_PATH = './data/model/qr_target_net.pkl'
+PRED_PATH = './data/model/qr-dqn_pred_net.pkl'
+TARGET_PATH = './data/model/qr-dqn_target_net.pkl'
 RESULT_PATH = './data/plots/qr-dqn_result.pkl'
 
 class ConvNet(nn.Module):
@@ -310,7 +310,7 @@ for step in range(1, STEP_NUM//N_ENVS+1):
 
     if RENDERING:
         env.render()
-
+print("The training is done!")
 # plot the figure
 # plt.plot(range(len(result)), result, label="QR-DQN")
 # plt.legend()
