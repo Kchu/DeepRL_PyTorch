@@ -34,7 +34,7 @@ N_OPTIONS = 10
 # number of environments for C51
 N_ENVS = 16
 # Total simulation step
-STEP_NUM = int(1e+7)
+STEP_NUM = int(5e+7)
 # gamma for MDP
 GAMMA = 0.99
 # visualize for agent playing
@@ -50,7 +50,7 @@ N_STATES = env.observation_space.shape
 USE_GPU = torch.cuda.is_available()
 print('USE GPU: '+str(USE_GPU))
 # mini-batch size
-BATCH_SIZE = 128
+BATCH_SIZE = 32
 # learning rage
 LR = 1e-4
 # epsilon-greedy
@@ -119,7 +119,7 @@ class ConvNet(nn.Module):
         super(ConvNet, self).__init__()
 
         self.feature_extraction = nn.Sequential(
-        	# Conv2d(输入channels, 输出channels, kernel_size, stride)
+            # Conv2d(输入channels, 输出channels, kernel_size, stride)
             nn.Conv2d(STATE_LEN, 32, kernel_size=8, stride=4),
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=4, stride=2),
@@ -214,8 +214,8 @@ class QUOTA(object):
         self.pred_net.load(PRED_PATH)
         self.target_net.load(TARGET_PATH)
 
-    def choose_action(self, x, EPSILON, EPSILON_O ):
-    	# x:state
+    def choose_action(self, x, EPSILON, EPSILON_O):
+        # x:state
         x = torch.FloatTensor(x)
         if USE_GPU:
             x = x.cuda()
@@ -375,19 +375,16 @@ for step in range(1, STEP_NUM//N_ENVS + 1):
         quota.store_transition(s[i], a[i], clip_r[i], s_[i], done[i], quota.options[i].item())
 
     # annealing the epsilon(exploration strategy)
-    if step <= int(1e+3):
+    if step <= int(1e+4):
         # linear annealing to 0.9 until million step
-        EPSILON -= 0.9/1e+3
-    elif step <= int(1e+4):
+        EPSILON -= 0.9/1e+4
+    elif step <= int(2e+4):
         # linear annealing to 0.99 until the end
-        EPSILON -= 0.09/(1e+4 - 1e+3)
+        EPSILON -= 0.09/1e+4
 
-    if step <= int(1e+3):
+    if step <= int(2e+4):
     # linear annealing to 0.9 until million step
-        EPSILON_O -= 0.9/1e+3
-    elif step <= int(1e+4):
-    # linear annealing to 0.99 until the end
-        EPSILON_O -= 0.09/(1e+4 - 1e+3)
+        EPSILON_O -= 0.95/1e+4
 
     # if memory fill 50K and mod 4 = 0(for speed issue), learn pred net
     if (LEARN_START <= quota.memory_counter) and (quota.memory_counter % LEARN_FREQ == 0):

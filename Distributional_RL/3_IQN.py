@@ -10,13 +10,13 @@ import os
 import pickle
 import time
 from collections import deque
-from copy import deepcopy
-from tqdm import tqdm
+# from copy import deepcopy
+# from tqdm import tqdm
 
-import matplotlib.pyplot as plt
-import seaborn as sns
+# import matplotlib.pyplot as plt
+# import seaborn as sns
 # %matplotlib inline
-sns.set()
+# sns.set()
 from wrappers import wrap, wrap_cover, SubprocVecEnv
 
 '''DQN settings'''
@@ -46,7 +46,7 @@ QUANTS = np.linspace(0.0, 1.0, N_QUANT + 1)[1:]
 # number of environments for C51
 N_ENVS = 16
 # Total simulation step
-STEP_NUM = int(1e+7)
+STEP_NUM = int(1e+8)
 # gamma for MDP
 GAMMA = 0.99
 # visualize for agent playing
@@ -62,7 +62,7 @@ N_STATES = env.observation_space.shape
 USE_GPU = torch.cuda.is_available()
 print('USE GPU: '+str(USE_GPU))
 # mini-batch size
-BATCH_SIZE = 128
+BATCH_SIZE = 32
 # learning rage
 LR = 1e-4
 # epsilon-greedy
@@ -81,15 +81,15 @@ RESULT_PATH = './data/plots/iqn_result.pkl'
 
 # # define huber function
 # def huber(x):
-# 	cond = (c.abs()<1.0).float().detach()
-# 	return 0.5 * x.pow(2) * cond + (x.abs() - 0.5) * (1.0 - cond)
+#   cond = (c.abs()<1.0).float().detach()
+#   return 0.5 * x.pow(2) * cond + (x.abs() - 0.5) * (1.0 - cond)
 
 class ConvNet(nn.Module):
     def __init__(self):
         super(ConvNet, self).__init__()
         # nn.Sequential을 사용하면 다음과 같입 코드를 간결하게 바꿀 수 있습니다.
         self.feature_extraction = nn.Sequential(
-        	# Conv2d(输入channels, 输出channels, kernel_size, stride)
+            # Conv2d(输入channels, 输出channels, kernel_size, stride)
             nn.Conv2d(STATE_LEN, 32, kernel_size=8, stride=4),
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=4, stride=2),
@@ -190,7 +190,7 @@ class DQN(object):
         self.target_net.load(TARGET_PATH)
 
     def choose_action(self, x, EPSILON):
-    	# x:state
+        # x:state
         x = torch.FloatTensor(x)
         # print(x.shape)
         if USE_GPU:
@@ -199,7 +199,7 @@ class DQN(object):
         # epsilon-greedy策略
         if np.random.uniform() >= EPSILON:
             # greedy case
-            action_value, tau = self.pred_net(x) 	# (N_ENVS, N_ACTIONS, N_QUANT)
+            action_value, tau = self.pred_net(x)    # (N_ENVS, N_ACTIONS, N_QUANT)
             action_value = action_value.mean(dim=2)
             action = torch.argmax(action_value, dim=1).data.cpu().numpy()
             # print(action)
@@ -231,7 +231,7 @@ class DQN(object):
             b_s, b_a, b_r, b_s_, b_d = b_s.cuda(), b_a.cuda(), b_r.cuda(), b_s_.cuda(), b_d.cuda()
 
         # action value distribution prediction
-        q_eval, q_eval_tau = self.pred_net(b_s) 	# (m, N_ACTIONS, N_QUANT), (N_QUANT, 1)
+        q_eval, q_eval_tau = self.pred_net(b_s)     # (m, N_ACTIONS, N_QUANT), (N_QUANT, 1)
         mb_size = q_eval.size(0)
         # squeeze去掉第一维
         # torch.stack函数是将矩阵进行叠加，默认dim=0，即将[]中的n个矩阵变成n维
@@ -239,12 +239,12 @@ class DQN(object):
         q_eval = torch.stack([q_eval[i].index_select(0, b_a[i]) for i in range(mb_size)]).squeeze(1) 
         # (m, N_QUANT)
         # 在q_eval第二维后面加一个维度
-        q_eval = q_eval.unsqueeze(2) 				# (m, N_QUANT, 1)
+        q_eval = q_eval.unsqueeze(2)                # (m, N_QUANT, 1)
         # note that dim 1 is for present quantile, dim 2 is for next quantile
         
         # get next state value
-        q_next, q_next_tau = self.target_net(b_s_) 				# (m, N_ACTIONS, N_QUANT), (N_QUANT, 1)
-        best_actions = q_next.mean(dim=2).argmax(dim=1) 		# (m)
+        q_next, q_next_tau = self.target_net(b_s_)              # (m, N_ACTIONS, N_QUANT), (N_QUANT, 1)
+        best_actions = q_next.mean(dim=2).argmax(dim=1)         # (m)
         q_next = torch.stack([q_next[i].index_select(0, best_actions[i]) for i in range(mb_size)]).squeeze(1)
         # 243, q_nest: (m, N_QUANT)
         # q_target = R + gamma * (1 - terminate) * q_next
@@ -254,8 +254,8 @@ class DQN(object):
         q_target = q_target.unsqueeze(1).detach() # (m , 1, N_QUANT)
 
         # quantile Huber loss
-        u = q_target.detach() - q_eval 		# (m, N_QUANT, N_QUANT)
-        tau = q_eval_tau.unsqueeze(0) 		# (1, N_QUANT, 1)
+        u = q_target.detach() - q_eval      # (m, N_QUANT, N_QUANT)
+        tau = q_eval_tau.unsqueeze(0)       # (1, N_QUANT, 1)
         # note that tau is for present quantile
         # w = |tau - delta(u<0)|
         weight = torch.abs(tau - u.le(0.).float()) # (m, N_QUANT, N_QUANT)
@@ -320,12 +320,20 @@ for step in range(1, STEP_NUM//N_ENVS+1):
         dqn.store_transition(s[i], a[i], clip_r[i], s_[i], done[i])
 
     # annealing the epsilon(exploration strategy)
-    if step <= int(1e+3):
+    # if step <= int(1e+3):
+    #     # linear annealing to 0.9 until million step
+    #     EPSILON -= 0.9 / 1e+3
+    # elif step <= int(1e+4):
+    #     # linear annealing to 0.99 until the end
+    #     EPSILON -= 0.09 / (1e+4 - 1e+3)
+        # annealing the epsilon(exploration strategy)
+    if step <= int(1e+4):
         # linear annealing to 0.9 until million step
-        EPSILON -= 0.9 / 1e+3
-    elif step <= int(1e+4):
+        EPSILON -= 0.9/1e+4
+    elif step <= int(2e+4):
+    # else:
         # linear annealing to 0.99 until the end
-        EPSILON -= 0.09 / (1e+4 - 1e+3)
+        EPSILON -= 0.09/1e+4
 
     # if memory fill 50K and mod 4 = 0(for speed issue), learn pred net
     if (LEARN_START <= dqn.memory_counter) and (dqn.memory_counter % LEARN_FREQ == 0):
@@ -341,7 +349,7 @@ for step in range(1, STEP_NUM//N_ENVS+1):
         # print log
         print('Used Step: ',dqn.memory_counter,
               '| EPS: ', round(EPSILON, 3),
-              '| Loss: ', loss,
+              # '| Loss: ', loss,
               '| Mean ep 100 return: ', mean_100_ep_return,
               '| Used Time:',time_interval)
         # save model

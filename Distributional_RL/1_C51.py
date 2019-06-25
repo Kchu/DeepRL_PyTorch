@@ -10,12 +10,12 @@ import os
 import pickle
 import time
 from collections import deque
-from copy import deepcopy
+# from copy import deepcopy
 # from tqdm import tqdm
 
-import matplotlib.pyplot as plt
-import seaborn as sns
-sns.set()
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+# sns.set()
 
 from wrappers import wrap, wrap_cover, SubprocVecEnv
 
@@ -48,7 +48,7 @@ V_MAX = 10.
 V_RANGE = np.linspace(V_MIN, V_MAX, N_ATOM)
 V_STEP = ((V_MAX-V_MIN)/(N_ATOM-1))
 # Total simulation step
-STEP_NUM = int(1e+7)
+STEP_NUM = int(2e+8)
 # gamma for MDP
 GAMMA = 0.99
 # visualize for agent playing
@@ -79,7 +79,7 @@ RESULT_PATH = './data/plots/C51_result.pkl'
 class ConvNet(nn.Module):
     def __init__(self):
         super(ConvNet, self).__init__()
-        # nn.Sequential
+        # nn.Sequential을 사용하면 다음과 같입 코드를 간결하게 바꿀 수 있습니다.
         self.feature_extraction = nn.Sequential(
             nn.Conv2d(STATE_LEN, 32, kernel_size=8, stride=4),
             nn.ReLU(),
@@ -259,6 +259,7 @@ class DQN(object):
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
+
 
 dqn = DQN()
 
