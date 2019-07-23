@@ -227,7 +227,7 @@ class DQN(object):
         next_v_range = np.expand_dims(b_r, 1) + GAMMA * np.expand_dims((1. - b_d),1) \
         * np.expand_dims(self.value_range.data.cpu().numpy(),0)
         next_v_pos = np.zeros_like(next_v_range)
-            # clip for categorical distribution
+        # clip for categorical distribution
         next_v_range = np.clip(next_v_range, V_MIN, V_MAX)
         # calc relative position of possible value
         next_v_pos = (next_v_range - V_MIN)/ V_STEP
@@ -245,7 +245,7 @@ class DQN(object):
         if USE_GPU:
             q_target = q_target.cuda()
         
-        # calc huber loss, dont reduce for importance weight
+        # calc cross entropy loss, dont reduce for importance weight
         loss = q_target * ( - torch.log(q_eval + 1e-8)) # (m , N_ATOM)
         loss = torch.mean(loss)
         
