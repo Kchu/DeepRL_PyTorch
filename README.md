@@ -1,5 +1,6 @@
 # Deep Reinforcement Learning Code
-Currently there are only the codes for distributional reinforcement learning here.  
+Currently there are only the codes for distributional reinforcement learning here.
+Codes for algorithm: C51, QR-DQN, IQN, QUOTA.
 
 Thanks to [sungyubkim](<https://github.com/sungyubkim>) and [Shangtong Zhang](<https://github.com/ShangtongZhang>)!  
 

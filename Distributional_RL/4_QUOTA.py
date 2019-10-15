@@ -9,12 +9,18 @@ import pickle
 import time
 from collections import deque
 from copy import deepcopy
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-sns.set()
+import argparse
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+# sns.set()
 from wrappers import wrap, wrap_cover, SubprocVecEnv
 
+
+# 处理输入参数
+parser = argparse.ArgumentParser(description='Some settings of the experiment.')
+parser.add_argument('games', type=str, nargs=1, help='name of the games. for example: Breakout')
+args = parser.parse_args()
+args.games = "".join(args.games)
 '''DQN settings'''
 # sequential images to define state
 STATE_LEN = 4
@@ -34,13 +40,13 @@ N_OPTIONS = 10
 # number of environments for C51
 N_ENVS = 16
 # Total simulation step
-STEP_NUM = int(5e+7)
+STEP_NUM = int(1e+8)
 # gamma for MDP
 GAMMA = 0.99
 # visualize for agent playing
 RENDERING = False
 # openai gym env name
-ENV_NAME = 'BreakoutNoFrameskip-v4'
+ENV_NAME = args.games+'NoFrameskip-v4'
 env = SubprocVecEnv([wrap_cover(ENV_NAME) for i in range(N_ENVS)])
 N_ACTIONS = env.action_space.n
 N_STATES = env.observation_space.shape
@@ -67,9 +73,9 @@ LOAD = False
 # save frequency
 SAVE_FREQ = int(1e+3)
 # paths for predction net, target net, result log
-PRED_PATH = './data/model/quota_pred_net.pkl'
-TARGET_PATH = './data/model/quota_target_net.pkl'
-RESULT_PATH = './data/plots/quota_result.pkl'
+PRED_PATH = '/home/.mujoco/CK/data/model/quota_pred_net_'+args.games+'.pkl'
+TARGET_PATH = '/home/.mujoco/CK/data/model/quota_target_net_'+args.games+'.pkl'
+RESULT_PATH = '/home/.mujoco/CK/data/plots/quota_result_'+args.games+'.pkl'
 
 class ReplayBuffer(object):
     def __init__(self, size):
@@ -384,7 +390,7 @@ for step in range(1, STEP_NUM//N_ENVS + 1):
 
     if step <= int(2e+4):
     # linear annealing to 0.9 until million step
-        EPSILON_O -= 0.95/1e+4
+        EPSILON_O -= 0.95/2e+4
 
     # if memory fill 50K and mod 4 = 0(for speed issue), learn pred net
     if (LEARN_START <= quota.memory_counter) and (quota.memory_counter % LEARN_FREQ == 0):
