@@ -2,7 +2,7 @@
 # Implementation of The Quantile Option Architecture for Reinforcement Learning (QUOTA)
 # Author for codes: Chu Kun(chukun1997@163.com)
 # Paper: https://arxiv.org/abs/1811.02073v2
-# Refrence: https://github.com/ShangtongZhang/DeepRL
+# Reference: https://github.com/ShangtongZhang/DeepRL
 ###########################################################################################
 import gym
 import torch

@@ -2,7 +2,7 @@
 # Implementation of Implicit Quantile Networks (IQN)
 # Author for codes: Chu Kun(chukun1997@163.com)
 # Paper: https://arxiv.org/abs/1806.06923v1
-# Refrence: https://github.com/sungyubkim/Deep_RL_with_pytorch
+# Reference: https://github.com/sungyubkim/Deep_RL_with_pytorch
 ###########################################################################################
 import gym
 import torch

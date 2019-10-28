@@ -2,7 +2,7 @@
 # Implementation of Distributional Reinforcement Learning with Quantile Regression (QR-DQN)
 # Author for codes: Chu Kun(chukun1997@163.com)
 # Paper: https://arxiv.org/abs/1710.10044v1
-# Refrence: https://github.com/sungyubkim/Deep_RL_with_pytorch
+# Reference: https://github.com/sungyubkim/Deep_RL_with_pytorch
 ###########################################################################################
 import gym
 import torch
