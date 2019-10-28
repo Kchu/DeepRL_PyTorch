@@ -1,3 +1,9 @@
+###########################################################################################
+# Implementation of Implicit Quantile Networks (IQN)
+# Author for codes: Chu Kun(chukun1997@163.com)
+# Paper: https://arxiv.org/abs/1806.06923v1
+# Refrence: https://github.com/sungyubkim/Deep_RL_with_pytorch
+###########################################################################################
 import gym
 import torch
 import torch.nn as nn
@@ -10,14 +16,15 @@ import os
 import pickle
 import time
 from collections import deque
-# from copy import deepcopy
-# from tqdm import tqdm
-
-# import matplotlib.pyplot as plt
-# import seaborn as sns
-# %matplotlib inline
-# sns.set()
+import matplotlib.pyplot as plt
 from wrappers import wrap, wrap_cover, SubprocVecEnv
+
+# 处理输入参数（游戏名称）
+import argparse
+parser = argparse.ArgumentParser(description='Some settings of the experiment.')
+parser.add_argument('games', type=str, nargs=1, help='name of the games. for example: Breakout')
+args = parser.parse_args()
+args.games = "".join(args.games)
 
 '''DQN settings'''
 # 定义状态的顺序图像
@@ -52,7 +59,8 @@ GAMMA = 0.99
 # visualize for agent playing
 RENDERING = False
 # openai gym env name
-ENV_NAME = 'BreakoutNoFrameskip-v4'
+# ENV_NAME = 'BreakoutNoFrameskip-v4'
+ENV_NAME = args.games+'NoFrameskip-v4'
 env = SubprocVecEnv([wrap_cover(ENV_NAME) for i in range(N_ENVS)])
 N_ACTIONS = env.action_space.n
 N_STATES = env.observation_space.shape
@@ -75,21 +83,21 @@ LOAD = False
 # save frequency
 SAVE_FREQ = int(1e+3)
 # paths for predction net, target net, result log
-PRED_PATH = './data/model/iqn_pred_net.pkl'
-TARGET_PATH = './data/model/iqn_target_net.pkl'
-RESULT_PATH = './data/plots/iqn_result.pkl'
+PRED_PATH = '/home/.mujoco/CK/data/model/iqn_pred_net_'+args.games+'.pkl'
+TARGET_PATH = '/home/.mujoco/CK/data/model/iqn_target_net_'+args.games+'.pkl'
+RESULT_PATH = '/home/.mujoco/CK/data/plots/iqn_result_'+args.games+'.pkl'
 
 # # define huber function
 # def huber(x):
-#   cond = (c.abs()<1.0).float().detach()
-#   return 0.5 * x.pow(2) * cond + (x.abs() - 0.5) * (1.0 - cond)
+# 	cond = (c.abs()<1.0).float().detach()
+# 	return 0.5 * x.pow(2) * cond + (x.abs() - 0.5) * (1.0 - cond)
 
 class ConvNet(nn.Module):
     def __init__(self):
         super(ConvNet, self).__init__()
         # nn.Sequential을 사용하면 다음과 같입 코드를 간결하게 바꿀 수 있습니다.
         self.feature_extraction = nn.Sequential(
-            # Conv2d(输入channels, 输出channels, kernel_size, stride)
+        	# Conv2d(输入channels, 输出channels, kernel_size, stride)
             nn.Conv2d(STATE_LEN, 32, kernel_size=8, stride=4),
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=4, stride=2),
@@ -190,7 +198,7 @@ class DQN(object):
         self.target_net.load(TARGET_PATH)
 
     def choose_action(self, x, EPSILON):
-        # x:state
+    	# x:state
         x = torch.FloatTensor(x)
         # print(x.shape)
         if USE_GPU:
@@ -199,7 +207,7 @@ class DQN(object):
         # epsilon-greedy策略
         if np.random.uniform() >= EPSILON:
             # greedy case
-            action_value, tau = self.pred_net(x)    # (N_ENVS, N_ACTIONS, N_QUANT)
+            action_value, tau = self.pred_net(x) 	# (N_ENVS, N_ACTIONS, N_QUANT)
             action_value = action_value.mean(dim=2)
             action = torch.argmax(action_value, dim=1).data.cpu().numpy()
             # print(action)
@@ -219,6 +227,7 @@ class DQN(object):
             self.update_target(self.target_net, self.pred_net, 1e-2)
     
         b_s, b_a, b_r, b_s_, b_d = self.replay_buffer.sample(BATCH_SIZE)
+        print(b_d)
         b_w, b_idxes = np.ones_like(b_r), None
             
         b_s = torch.FloatTensor(b_s)
@@ -227,11 +236,17 @@ class DQN(object):
         b_s_ = torch.FloatTensor(b_s_)
         b_d = torch.FloatTensor(b_d)
 
+        # print('b_s', b_s.shape)
+        # print('b_s_', b_s_.shape)
+        # print('b_a', b_a.shape)
+        # print('b_d', b_d.shape)
+        # print('b_r', b_r.shape)
+
         if USE_GPU:
             b_s, b_a, b_r, b_s_, b_d = b_s.cuda(), b_a.cuda(), b_r.cuda(), b_s_.cuda(), b_d.cuda()
 
         # action value distribution prediction
-        q_eval, q_eval_tau = self.pred_net(b_s)     # (m, N_ACTIONS, N_QUANT), (N_QUANT, 1)
+        q_eval, q_eval_tau = self.pred_net(b_s) 	# (m, N_ACTIONS, N_QUANT), (N_QUANT, 1)
         mb_size = q_eval.size(0)
         # squeeze去掉第一维
         # torch.stack函数是将矩阵进行叠加，默认dim=0，即将[]中的n个矩阵变成n维
@@ -239,12 +254,12 @@ class DQN(object):
         q_eval = torch.stack([q_eval[i].index_select(0, b_a[i]) for i in range(mb_size)]).squeeze(1) 
         # (m, N_QUANT)
         # 在q_eval第二维后面加一个维度
-        q_eval = q_eval.unsqueeze(2)                # (m, N_QUANT, 1)
+        q_eval = q_eval.unsqueeze(2) 				# (m, N_QUANT, 1)
         # note that dim 1 is for present quantile, dim 2 is for next quantile
         
         # get next state value
-        q_next, q_next_tau = self.target_net(b_s_)              # (m, N_ACTIONS, N_QUANT), (N_QUANT, 1)
-        best_actions = q_next.mean(dim=2).argmax(dim=1)         # (m)
+        q_next, q_next_tau = self.target_net(b_s_) 				# (m, N_ACTIONS, N_QUANT), (N_QUANT, 1)
+        best_actions = q_next.mean(dim=2).argmax(dim=1) 		# (m)
         q_next = torch.stack([q_next[i].index_select(0, best_actions[i]) for i in range(mb_size)]).squeeze(1)
         # 243, q_nest: (m, N_QUANT)
         # q_target = R + gamma * (1 - terminate) * q_next
@@ -254,8 +269,11 @@ class DQN(object):
         q_target = q_target.unsqueeze(1).detach() # (m , 1, N_QUANT)
 
         # quantile Huber loss
-        u = q_target.detach() - q_eval      # (m, N_QUANT, N_QUANT)
-        tau = q_eval_tau.unsqueeze(0)       # (1, N_QUANT, 1)
+        print('q_target',q_target.shape)
+        print('q_eval',q_eval.shape)
+        print('q_target_',q_target.detach().shape)
+        u = q_target.detach() - q_eval 		# (m, N_QUANT, N_QUANT)
+        tau = q_eval_tau.unsqueeze(0) 		# (1, N_QUANT, 1)
         # note that tau is for present quantile
         # w = |tau - delta(u<0)|
         weight = torch.abs(tau - u.le(0.).float()) # (m, N_QUANT, N_QUANT)

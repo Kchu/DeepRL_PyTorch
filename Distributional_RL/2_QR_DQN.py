@@ -1,3 +1,9 @@
+###########################################################################################
+# Implementation of Distributional Reinforcement Learning with Quantile Regression (QR-DQN)
+# Author for codes: Chu Kun(chukun1997@163.com)
+# Paper: https://arxiv.org/abs/1710.10044v1
+# Refrence: https://github.com/sungyubkim/Deep_RL_with_pytorch
+###########################################################################################
 import gym
 import torch
 import torch.nn as nn
@@ -10,16 +16,17 @@ import os
 import pickle
 import time
 from collections import deque
-from copy import deepcopy
-# from tqdm import tqdm
-
 import matplotlib.pyplot as plt
-import seaborn as sns
-sns.set()
-
 from wrappers import wrap, wrap_cover, SubprocVecEnv
 
-'''DQN settings'''
+# 处理输入参数（游戏名称）
+import argparse
+parser = argparse.ArgumentParser(description='Some settings of the experiment.')
+parser.add_argument('games', type=str, nargs=1, help='name of the games. for example: Breakout')
+args = parser.parse_args()
+args.games = "".join(args.games)
+
+'''QR-DQN settings'''
 # sequential images to define state
 STATE_LEN = 4
 # target policy sync interval
@@ -31,7 +38,7 @@ MEMORY_CAPACITY = int(1e+5)
 # simulator steps for learning interval
 LEARN_FREQ = 4
 # quantile numbers for QR-DQN
-N_QUANT = 51
+N_QUANT = 200
 # quantiles
 QUANTS = np.linspace(0.0, 1.0, N_QUANT + 1)[1:]
 QUANTS_TARGET = (np.linspace(0.0, 1.0, N_QUANT + 1)[:-1] + QUANTS)/2
@@ -40,12 +47,12 @@ QUANTS_TARGET = (np.linspace(0.0, 1.0, N_QUANT + 1)[:-1] + QUANTS)/2
 # number of environments for C51
 N_ENVS = 16
 # openai gym env name
-ENV_NAME = 'BreakoutNoFrameskip-v4'
+ENV_NAME = args.games+'NoFrameskip-v4'
 env = SubprocVecEnv([wrap_cover(ENV_NAME) for i in range(N_ENVS)])
 N_ACTIONS = env.action_space.n
 N_STATES = env.observation_space.shape
 # Total simulation step
-STEP_NUM = int(1e+7)
+STEP_NUM = int(1e+8)
 # gamma for MDP
 GAMMA = 0.99
 # visualize for agent playing
@@ -69,9 +76,9 @@ LOAD = False
 # save frequency
 SAVE_FREQ = int(1e+3)
 # paths for predction net, target net, result log
-PRED_PATH = './data/model/qr-dqn_pred_net.pkl'
-TARGET_PATH = './data/model/qr-dqn_target_net.pkl'
-RESULT_PATH = './data/plots/qr-dqn_result.pkl'
+PRED_PATH = '/home/.mujoco/CK/data/model/qr-dqn_pred_net_'+args.games+'.pkl'
+TARGET_PATH = '/home/.mujoco/CK/data/model/qr-dqn_target_net_'+args.games+'.pkl'
+RESULT_PATH = '/home/.mujoco/CK/data/plots/qr-dqn_result_'+args.games+'.pkl'
 
 class ConvNet(nn.Module):
     def __init__(self):
@@ -221,11 +228,14 @@ class QR_DQN(object):
         loss = F.smooth_l1_loss(q_eval, q_target.detach(), reduction='none')
         # (m, N_QUANT, N_QUANT)
         loss = torch.mean(weight * loss, dim=1).mean(dim=1)
+        print('1',loss.shape)
         
         # calc importance weighted loss
         b_w = torch.Tensor(b_w)
         if USE_GPU:
             b_w = b_w.cuda()
+        # loos = b_w * loss
+        print('2',(b_w * loss).shape)
         loss = torch.mean(b_w * loss)
         
         # backprop loss
@@ -276,13 +286,13 @@ for step in range(1, STEP_NUM//N_ENVS+1):
     for i in range(N_ENVS):
         qr_dqn.store_transition(s[i], a[i], clip_r[i], s_[i], done[i])
 
-    # annealing the epsilon(exploration strategy)
-    if step <= int(1e+3):
+    if step <= int(1e+4):
         # linear annealing to 0.9 until million step
-        EPSILON -= 0.9/1e+3
-    elif step <= int(1e+4):
+        EPSILON -= 0.9/1e+4
+    elif step <= int(2e+4):
+    # else:
         # linear annealing to 0.99 until the end
-        EPSILON -= 0.09/(1e+4 - 1e+3)
+        EPSILON -= 0.09/1e+4
 
     # if memory fill 50K and mod 4 = 0(for speed issue), learn pred net
     if (LEARN_START <= qr_dqn.memory_counter) and (qr_dqn.memory_counter % LEARN_FREQ == 0):
