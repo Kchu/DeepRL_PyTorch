@@ -2,7 +2,7 @@
 # Implementation of Deep Q-Learning Networks (DQN)
 # Author for codes: Chu Kun(chukun1997@163.com)
 # Paper: https://www.nature.com/articles/nature14236
-# Reference: https://github.com/sungyubkim/Deep_RL_with_pytorch
+# Refrence: https://github.com/sungyubkim/Deep_RL_with_pytorch
 ###########################################################################################
 import gym
 import torch
@@ -76,9 +76,9 @@ LOAD = False
 # save frequency
 SAVE_FREQ = int(1e+3)
 # paths for predction net, target net, result log
-PRED_PATH = '/home/.mujoco/CK/data/model/dqn_pred_net_'+args.games+'.pkl'
-TARGET_PATH = '/home/.mujoco/CK/data/model/dqn_target_net_'+args.games+'.pkl'
-RESULT_PATH = '/home/.mujoco/CK/data/plots/dqn_result_'+args.games+'.pkl'
+PRED_PATH = '/home/.mujoco/CK/data/model/dqn_pred_net_o_'+args.games+'.pkl'
+TARGET_PATH = '/home/.mujoco/CK/data/model/dqn_target_net_o_'+args.games+'.pkl'
+RESULT_PATH = '/home/.mujoco/CK/data/plots/dqn_result_o_'+args.games+'.pkl'
 
 class ConvNet(nn.Module):
     def __init__(self):
@@ -95,7 +95,7 @@ class ConvNet(nn.Module):
         )
         self.fc = nn.Linear(7 * 7 * 64, 512)
         
-        # action value distribution
+        # action value
         self.fc_q = nn.Linear(512, N_ACTIONS) 
         
         # 初始化参数值    
@@ -142,7 +142,8 @@ class DQN(object):
         self.memory_counter = 0
         # target network step counter
         self.learn_step_counter = 0
-        
+        # loss function
+        self.loss_function = nn.MSELoss()
         # ceate the replay buffer
         self.replay_buffer = ReplayBuffer(MEMORY_CAPACITY)
         
@@ -219,8 +220,7 @@ class DQN(object):
         q_target = q_target.detach()
 
         # loss
-        loss = F.smooth_l1_loss(q_eval, q_target.detach(), reduction='none')
-        loss = torch.mean(loss)
+        loss = self.loss_function(q_eval, q_target)
         
         # backprop loss
         self.optimizer.zero_grad()
