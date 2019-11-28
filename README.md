@@ -15,6 +15,15 @@ Always up for a chat -- shoot me an email if you'd like to discuss anything!
 * numpy
 * matplotlib
 
+## Usage:
+
+When your computer's python environment satisfies the above dependencies, you can run the code. For example, enter:
+```python
+python 0_dqn.py Breakout 
+```
+on the command line to run the algorithms in the Atari environment.
+You can change some specific parameters for the algorithms inside the codes.
+
 ## References:
 
 1. Human-level control through deep reinforcement learning(DQN)   [[Paper](https://www.nature.com/articles/nature14236)]   [[Code](https://github.com/Kchu/DeepRL_CK/blob/master/Distributional_RL/0_DQN.py)]
