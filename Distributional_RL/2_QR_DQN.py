@@ -76,9 +76,9 @@ LOAD = False
 # save frequency
 SAVE_FREQ = int(1e+3)
 # paths for predction net, target net, result log
-PRED_PATH = 'data/model/qr-dqn_pred_net_'+args.games+'.pkl'
-TARGET_PATH = 'data/model/qr-dqn_target_net_'+args.games+'.pkl'
-RESULT_PATH = 'data/plots/qr-dqn_result_'+args.games+'.pkl'
+PRED_PATH = './data/model/qr-dqn_pred_net_'+args.games+'.pkl'
+TARGET_PATH = './data/model/qr-dqn_target_net_'+args.games+'.pkl'
+RESULT_PATH = './data/plots/qr-dqn_result_'+args.games+'.pkl'
 
 class ConvNet(nn.Module):
     def __init__(self):
