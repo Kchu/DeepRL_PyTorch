@@ -79,9 +79,9 @@ LOAD = False
 # save frequency
 SAVE_FREQ = int(1e+3)
 # paths for predction net, target net, result log
-PRED_PATH = '/home/.mujoco/CK/data/model/C51_pred_net_'+args.games+'.pkl'
-TARGET_PATH = '/home/.mujoco/CK/data/model/C51_target_net_'+args.games+'.pkl'
-RESULT_PATH = '/home/.mujoco/CK/data/plots/C51_result_'+args.games+'.pkl'
+PRED_PATH = 'data/model/C51_pred_net_'+args.games+'.pkl'
+TARGET_PATH = 'data/model/C51_target_net_'+args.games+'.pkl'
+RESULT_PATH = 'data/plots/C51_result_'+args.games+'.pkl'
 
 class ConvNet(nn.Module):
     def __init__(self):
