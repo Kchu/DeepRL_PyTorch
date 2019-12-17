@@ -19,7 +19,7 @@ from collections import deque
 import matplotlib.pyplot as plt
 from wrappers import wrap, wrap_cover, SubprocVecEnv
 
-# 处理输入参数（游戏名称）
+# Parameters
 import argparse
 parser = argparse.ArgumentParser(description='Some settings of the experiment.')
 parser.add_argument('games', type=str, nargs=1, help='name of the games. for example: Breakout')
@@ -321,8 +321,3 @@ for step in range(1, STEP_NUM//N_ENVS+1):
     if RENDERING:
         env.render()
 print("The training is done!")
-# plot the figure
-# plt.plot(range(len(result)), result, label="QR-DQN")
-# plt.legend()
-# plt.tight_layout()
-# plt.show()

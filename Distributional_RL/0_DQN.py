@@ -27,19 +27,14 @@ args = parser.parse_args()
 args.games = "".join(args.games)
 
 '''DQN settings'''
-# 定义状态的顺序图像
 # sequential images to define state
 STATE_LEN = 4
-# 目标策略同步间隔
 # target policy sync interval
 TARGET_REPLACE_ITER = 1
-# 开始学习的步数
 # simulator steps for start learning
 LEARN_START = int(1e+3)
-# （优先级）经验池容量大小
 # (prioritized) experience replay memory size
 MEMORY_CAPACITY = int(1e+5)
-# 学习间隔的步数
 # simulator steps for learning interval
 LEARN_FREQ = 4
 
@@ -83,7 +78,7 @@ RESULT_PATH = '/home/.mujoco/CK/data/plots/dqn_result_o_'+args.games+'.pkl'
 class ConvNet(nn.Module):
     def __init__(self):
         super(ConvNet, self).__init__()
-        # nn.Sequential을 사용하면 다음과 같입 코드를 간결하게 바꿀 수 있습니다.
+        
         self.feature_extraction = nn.Sequential(
         	# Conv2d(输入channels, 输出channels, kernel_size, stride)
             nn.Conv2d(STATE_LEN, 32, kernel_size=8, stride=4),
@@ -113,7 +108,6 @@ class ConvNet(nn.Module):
     def forward(self, x):
         # x.size(0) : minibatch size
         mb_size = x.size(0)
-        # x是(m, 84, 84, 4)的tensor
         x = self.feature_extraction(x / 255.0) # (m, 7 * 7 * 64)
         x = x.view(x.size(0), -1)
         x = F.relu(self.fc(x))                 
@@ -150,7 +144,6 @@ class DQN(object):
         # define optimizer
         self.optimizer = torch.optim.Adam(self.pred_net.parameters(), lr=LR)
         
-    # 用预测网络更新目标网络
     def update_target(self, target, pred, update_rate):
         # update target network parameters using predcition network
         for target_param, pred_param in zip(target.parameters(), pred.parameters()):

@@ -22,12 +22,13 @@ import argparse
 from wrappers import wrap, wrap_cover, SubprocVecEnv
 
 
-# 处理输入参数
+# Parameters
 parser = argparse.ArgumentParser(description='Some settings of the experiment.')
 parser.add_argument('games', type=str, nargs=1, help='name of the games. for example: Breakout')
 args = parser.parse_args()
 args.games = "".join(args.games)
-'''DQN settings'''
+
+'''QUOTA settings'''
 # sequential images to define state
 STATE_LEN = 4
 # target policy sync interval
@@ -243,7 +244,7 @@ class QUOTA(object):
         dice = torch.cuda.FloatTensor(np.random.rand(mb_size))
         # Judge if random(epsilon) or greedy(1-epsilon)
         new_options = torch.where(dice < EPSILON_O, random_options, greedy_options)
-        # 不采用新的Option(1-beta 保持原来option)
+        # Remain Old Option(1-beta)
         dice = np.random.rand(mb_size)
         start_new_options = dice < Behavior_beta
         start_new_options = torch.cuda.FloatTensor(start_new_options.astype(np.uint8)).byte()
@@ -367,7 +368,6 @@ start_time = time.time()
 s = np.array(env.reset())
 
 # Trainning
-# for step in tqdm(range(1, STEP_NUM//N_ENVS + 1)):
 for step in range(1, STEP_NUM//N_ENVS + 1):
     a = quota.choose_action(s, EPSILON, EPSILON_O)
 
@@ -411,7 +411,6 @@ for step in range(1, STEP_NUM//N_ENVS + 1):
         result.append(mean_100_ep_return)
         # print log
         print('Used Step:',quota.memory_counter,
-              # '|Step: ', step,
               '| EPS_A: ', round(EPSILON, 3),
               '| EPS_O: ', round(EPSILON_O, 3),
               '| Mean ep 100 return: ', mean_100_ep_return,
@@ -427,8 +426,3 @@ for step in range(1, STEP_NUM//N_ENVS + 1):
     if RENDERING:
         env.render()
 print("The training is done!")
-## plot the figure
-# plt.plot(range(len(result)), result, label="QUOTA")
-# plt.legend()
-# plt.tight_layout()
-# plt.show()

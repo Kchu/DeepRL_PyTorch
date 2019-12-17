@@ -2,11 +2,11 @@
 Currently there are only the codes for distributional reinforcement learning here.
 Codes for algorithms: DQN, C51, QR-DQN, IQN, QUOTA.
 
-Thanks to [sungyubkim](<https://github.com/sungyubkim>) and [Shangtong Zhang](<https://github.com/ShangtongZhang>). 
+Thanks to [sungyubkim](<https://github.com/sungyubkim>) and [Shangtong Zhang](<https://github.com/ShangtongZhang>)!
 
 A lot of my codes references their implementations.
 
-Always up for a chat -- shoot me an email if you'd like to discuss anything!
+Always up for a chat -- shoot me an [email](chukun1997@163.com) if you'd like to discuss anything!
 
 ## Dependency:
 
@@ -19,7 +19,7 @@ Always up for a chat -- shoot me an email if you'd like to discuss anything!
 
 When your computer's python environment satisfies the above dependencies, you can run the code. For example, enter:
 ```python
-python 0_dqn.py Breakout 
+python 4_iqn.py Breakout 
 ```
 on the command line to run the algorithms in the Atari environment.
 You can change some specific parameters for the algorithms inside the codes.

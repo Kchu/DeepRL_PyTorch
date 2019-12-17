@@ -19,7 +19,7 @@ from collections import deque
 import matplotlib.pyplot as plt
 from wrappers import wrap, wrap_cover, SubprocVecEnv
 
-# 处理输入参数（游戏名称）
+# Parameters
 import argparse
 parser = argparse.ArgumentParser(description='Some settings of the experiment.')
 parser.add_argument('games', type=str, nargs=1, help='name of the games. for example: Breakout')
@@ -27,25 +27,18 @@ args = parser.parse_args()
 args.games = "".join(args.games)
 
 '''DQN settings'''
-# 定义状态的顺序图像
 # sequential images to define state
 STATE_LEN = 4
-# 目标策略同步间隔
 # target policy sync interval
 TARGET_REPLACE_ITER = 1
-# 开始学习的步数
 # simulator steps for start learning
 LEARN_START = int(1e+3)
-# （优先级）经验池容量大小
 # (prioritized) experience replay memory size
 MEMORY_CAPACITY = int(1e+5)
-# 学习间隔的步数
 # simulator steps for learning interval
 LEARN_FREQ = 4
-# IQN的分位数数量
 # quantile numbers for IQN
 N_QUANT = 64
-# 初始化的分位数值
 # quantiles
 QUANTS = np.linspace(0.0, 1.0, N_QUANT + 1)[1:]
 
@@ -95,7 +88,7 @@ RESULT_PATH = '/home/.mujoco/CK/data/plots/iqn_result_'+args.games+'.pkl'
 class ConvNet(nn.Module):
     def __init__(self):
         super(ConvNet, self).__init__()
-        # nn.Sequential을 사용하면 다음과 같입 코드를 간결하게 바꿀 수 있습니다.
+
         self.feature_extraction = nn.Sequential(
         	# Conv2d(输入channels, 输出channels, kernel_size, stride)
             nn.Conv2d(STATE_LEN, 32, kernel_size=8, stride=4),
@@ -112,7 +105,7 @@ class ConvNet(nn.Module):
         # action value distribution
         self.fc_q = nn.Linear(512, N_ACTIONS) 
         
-        # 初始化参数值    
+        # Initialization 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 # nn.init.orthogonal_(m.weight, gain = np.sqrt(2))
@@ -127,16 +120,14 @@ class ConvNet(nn.Module):
     def forward(self, x):
         # x.size(0) : minibatch size
         mb_size = x.size(0)
-        # x是(m, 84, 84, 4)的tensor
         x = self.feature_extraction(x / 255.0) # (m, 7 * 7 * 64)
-        # 随机初始化tau
+        # Rand Initlialization
         tau = torch.rand(N_QUANT, 1) # (N_QUANT, 1)
-        # 1到N_QUANT的区间 Quants=[1,2,3,...,N_QUANT]
+        # Quants=[1,2,3,...,N_QUANT]
         quants = torch.arange(0, N_QUANT, 1.0) # (N_QUANT,1)
         if USE_GPU:
             tau = tau.cuda()
             quants = quants.cuda()
-        # phi函数定义
         # phi_j(tau) = RELU(sum(cos(π*i*τ)*w_ij + b_j))
         cos_trans = torch.cos(quants * tau * 3.141592).unsqueeze(2) # (N_QUANT, N_QUANT, 1)
         rand_feat = F.relu(self.phi(cos_trans).mean(dim=1) + self.phi_bias.unsqueeze(0)).unsqueeze(0) 
@@ -146,7 +137,6 @@ class ConvNet(nn.Module):
         x = x * rand_feat                       # (m, N_QUANT, 7 * 7 * 64)
         x = F.relu(self.fc(x))                  # (m, N_QUANT, 512)
         
-        # 注意到IQN的输出是值分布的分位数值
         # note that output of IQN is quantile values of value distribution
         action_value = self.fc_q(x).transpose(1, 2) # (m, N_ACTIONS, N_QUANT)
 
@@ -180,7 +170,7 @@ class DQN(object):
         # define optimizer
         self.optimizer = torch.optim.Adam(self.pred_net.parameters(), lr=LR)
         
-    # 用预测网络更新目标网络
+    # Update target network
     def update_target(self, target, pred, update_rate):
         # update target network parameters using predcition network
         for target_param, pred_param in zip(target.parameters(), pred.parameters()):
@@ -204,7 +194,7 @@ class DQN(object):
         if USE_GPU:
             x = x.cuda()
 
-        # epsilon-greedy策略
+        # epsilon-greedy
         if np.random.uniform() >= EPSILON:
             # greedy case
             action_value, tau = self.pred_net(x) 	# (N_ENVS, N_ACTIONS, N_QUANT)
@@ -236,12 +226,6 @@ class DQN(object):
         b_s_ = torch.FloatTensor(b_s_)
         b_d = torch.FloatTensor(b_d)
 
-        # print('b_s', b_s.shape)
-        # print('b_s_', b_s_.shape)
-        # print('b_a', b_a.shape)
-        # print('b_d', b_d.shape)
-        # print('b_r', b_r.shape)
-
         if USE_GPU:
             b_s, b_a, b_r, b_s_, b_d = b_s.cuda(), b_a.cuda(), b_r.cuda(), b_s_.cuda(), b_d.cuda()
 
@@ -261,10 +245,10 @@ class DQN(object):
         q_next, q_next_tau = self.target_net(b_s_) 				# (m, N_ACTIONS, N_QUANT), (N_QUANT, 1)
         best_actions = q_next.mean(dim=2).argmax(dim=1) 		# (m)
         q_next = torch.stack([q_next[i].index_select(0, best_actions[i]) for i in range(mb_size)]).squeeze(1)
-        # 243, q_nest: (m, N_QUANT)
+        # q_nest: (m, N_QUANT)
         # q_target = R + gamma * (1 - terminate) * q_next
         q_target = b_r.unsqueeze(1) + GAMMA * (1. -b_d.unsqueeze(1)) * q_next 
-        # 246, q_target: (m, N_QUANT)
+        # q_target: (m, N_QUANT)
         # detach表示该Variable不更新参数
         q_target = q_target.unsqueeze(1).detach() # (m , 1, N_QUANT)
 
@@ -315,9 +299,7 @@ start_time = time.time()
 
 # env reset
 s = np.array(env.reset())
-# print(s.shape)
 
-# for step in tqdm(range(1, STEP_NUM//N_ENVS+1)):
 for step in range(1, STEP_NUM//N_ENVS+1):
     a = dqn.choose_action(s, EPSILON)
     # print('a',a)
@@ -338,13 +320,6 @@ for step in range(1, STEP_NUM//N_ENVS+1):
         dqn.store_transition(s[i], a[i], clip_r[i], s_[i], done[i])
 
     # annealing the epsilon(exploration strategy)
-    # if step <= int(1e+3):
-    #     # linear annealing to 0.9 until million step
-    #     EPSILON -= 0.9 / 1e+3
-    # elif step <= int(1e+4):
-    #     # linear annealing to 0.99 until the end
-    #     EPSILON -= 0.09 / (1e+4 - 1e+3)
-        # annealing the epsilon(exploration strategy)
     if step <= int(1e+4):
         # linear annealing to 0.9 until million step
         EPSILON -= 0.9/1e+4
@@ -381,8 +356,3 @@ for step in range(1, STEP_NUM//N_ENVS+1):
     if RENDERING:
         env.render()
 print("The training is done!")
-## plot the figure
-# plt.plot(range(len(result)), result, label="IQN")
-# plt.legend()
-# plt.tight_layout()
-# plt.show()
