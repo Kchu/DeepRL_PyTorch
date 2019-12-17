@@ -6,7 +6,7 @@ Thanks to [sungyubkim](<https://github.com/sungyubkim>) and [Shangtong Zhang](<h
 
 A lot of my codes references their implementations.
 
-Always up for a chat -- shoot me an [email](chukun1997@163.com) if you'd like to discuss anything!
+Always up for a chat -- shoot me an email if you'd like to discuss anything!
 
 ## Dependency:
 
