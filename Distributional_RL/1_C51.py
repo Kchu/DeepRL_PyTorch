@@ -1,6 +1,6 @@
 ###########################################################################################
 # Implementation of C51
-# Author for codes: Chu Kun(chukun1997@163.com)
+# Author for codes: sungyubkim, Chu Kun(chukun1997@163.com)
 # Paper: https://arxiv.org/abs/1707.06887v1
 # Reference: https://github.com/sungyubkim/Deep_RL_with_pytorch
 ###########################################################################################
