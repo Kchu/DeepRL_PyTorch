@@ -1,10 +1,9 @@
 # Deep Reinforcement Learning Codes
 Currently there are only the codes for distributional reinforcement learning here.
 Codes for algorithms: DQN, C51, QR-DQN, IQN, QUOTA.
+I recently noticed that my DQN code may not get an ideal performance, while other codes run well. I would very appreciate it if someone could point out the errors in my code!
 
-Thanks to [sungyubkim](<https://github.com/sungyubkim>) and [Shangtong Zhang](<https://github.com/ShangtongZhang>)!
-
-A lot of my codes references their implementations.
+Thanks so much to the original work of [sungyubkim](<https://github.com/sungyubkim>) and [Shangtong Zhang](<https://github.com/ShangtongZhang>).
 
 Always up for a chat -- shoot me an email if you'd like to discuss anything!
 
