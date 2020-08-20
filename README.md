@@ -18,7 +18,7 @@ Always up for a chat -- shoot me an email if you'd like to discuss anything!
 
 When your computer's python environment satisfies the above dependencies, you can run the code. For example, enter:
 ```python
-python 4_iqn.py Breakout 
+python 3_iqn.py Breakout 
 ```
 on the command line to run the algorithms in the Atari environment.
 You can change some specific parameters for the algorithms inside the codes.
