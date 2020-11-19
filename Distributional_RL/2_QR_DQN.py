@@ -228,14 +228,12 @@ class QR_DQN(object):
         loss = F.smooth_l1_loss(q_eval, q_target.detach(), reduction='none')
         # (m, N_QUANT, N_QUANT)
         loss = torch.mean(weight * loss, dim=1).mean(dim=1)
-        print('1',loss.shape)
         
         # calc importance weighted loss
         b_w = torch.Tensor(b_w)
         if USE_GPU:
             b_w = b_w.cuda()
         # loos = b_w * loss
-        print('2',(b_w * loss).shape)
         loss = torch.mean(b_w * loss)
         
         # backprop loss

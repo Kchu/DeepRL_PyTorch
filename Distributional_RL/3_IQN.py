@@ -253,9 +253,6 @@ class DQN(object):
         q_target = q_target.unsqueeze(1).detach() # (m , 1, N_QUANT)
 
         # quantile Huber loss
-        print('q_target',q_target.shape)
-        print('q_eval',q_eval.shape)
-        print('q_target_',q_target.detach().shape)
         u = q_target.detach() - q_eval 		# (m, N_QUANT, N_QUANT)
         tau = q_eval_tau.unsqueeze(0) 		# (1, N_QUANT, 1)
         # note that tau is for present quantile

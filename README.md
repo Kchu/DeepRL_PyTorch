@@ -1,11 +1,9 @@
 # Deep Reinforcement Learning Codes
-Currently there are only the codes for distributional reinforcement learning here.
-Codes for algorithms: DQN, C51, QR-DQN, IQN, QUOTA.
-I recently noticed that my DQN code may not get an ideal performance, while other codes run well. I would much appreciate it if someone could point out the errors in my code!
+Currently there are only the codes for distributional reinforcement learning here. Codes for algorithms: DQN, C51, QR-DQN, IQN, QUOTA.
 
-Thanks so much to the original work of [sungyubkim](<https://github.com/sungyubkim>) and [Shangtong Zhang](<https://github.com/ShangtongZhang>).
+The codes for C51, QR-DQN and IQN are a slight change from [sungyubkim](<https://github.com/sungyubkim/Deep_RL_with_pytorch>). QUOTA is implemented based on the work from the algorithm's author: [Shangtong Zhang](<https://github.com/ShangtongZhang>). I recently noticed that my DQN code may not get an ideal performance, while other codes run well. I would much appreciate it if someone could point out the errors in my code.
 
-Always up for a chat -- shoot me an email if you'd like to discuss anything!
+Always up for a chat -- shoot me an email if you'd like to discuss anything.
 
 ## Dependency:
 
@@ -22,6 +20,8 @@ python 3_iqn.py Breakout
 ```
 on the command line to run the algorithms in the Atari environment.
 You can change some specific parameters for the algorithms inside the codes.
+
+After training, you can plot the results by running result_show.py with appropriate parameters.
 
 ## References:
 
