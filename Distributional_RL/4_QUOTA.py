@@ -1,6 +1,6 @@
 ###########################################################################################
 # Implementation of The Quantile Option Architecture for Reinforcement Learning (QUOTA)
-# Author for codes: Chu Kun(chukun1997@163.com)
+# Author for codes: Kun Chu(kun_chu@outlook.com)
 # Paper: https://arxiv.org/abs/1811.02073v2
 # Reference: https://github.com/ShangtongZhang/DeepRL
 ###########################################################################################
@@ -16,9 +16,6 @@ import time
 from collections import deque
 from copy import deepcopy
 import argparse
-# import matplotlib.pyplot as plt
-# import seaborn as sns
-# sns.set()
 from wrappers import wrap, wrap_cover, SubprocVecEnv
 
 
@@ -242,9 +239,9 @@ class QUOTA(object):
         greedy_options = torch.argmax(option_values, dim=-1)
         random_options = torch.cuda.FloatTensor(np.random.randint(N_OPTIONS, size=mb_size)).long()
         dice = torch.cuda.FloatTensor(np.random.rand(mb_size))
-        # Judge if random(epsilon) or greedy(1-epsilon)
+        # Judge if random (epsilon) or greedy (1-epsilon)
         new_options = torch.where(dice < EPSILON_O, random_options, greedy_options)
-        # Remain Old Option(1-beta)
+        # Remain Old Option (1-beta)
         dice = np.random.rand(mb_size)
         start_new_options = dice < Behavior_beta
         start_new_options = torch.cuda.FloatTensor(start_new_options.astype(np.uint8)).byte()
