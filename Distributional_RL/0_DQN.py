@@ -1,6 +1,6 @@
 ###########################################################################################
 # Implementation of Deep Q-Learning Networks (DQN)
-# Author for codes: Chu Kun(chukun1997@163.com)
+# Author for codes: Chu Kun(kun_chu@outlook.com)
 # Paper: https://www.nature.com/articles/nature14236
 # Reference: https://github.com/sungyubkim/Deep_RL_with_pytorch
 ###########################################################################################

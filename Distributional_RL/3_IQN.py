@@ -1,6 +1,6 @@
 ###########################################################################################
 # Implementation of Implicit Quantile Networks (IQN)
-# Author for codes: sungyubkim, Chu Kun(chukun1997@163.com)
+# Author for codes: sungyubkim, Chu Kun(kun_chu@outlook.com)
 # Paper: https://arxiv.org/abs/1806.06923v1
 # Reference: https://github.com/sungyubkim/Deep_RL_with_pytorch
 ###########################################################################################
