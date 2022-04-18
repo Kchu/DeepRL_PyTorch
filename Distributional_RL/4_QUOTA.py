@@ -234,7 +234,7 @@ class QUOTA(object):
         quantile_values, option_values = self.pred_net(x)
 
         ## Choose Option
-        # Get new option(beta)
+        # Get new option (beta)
         mb_size = quantile_values.size(0)
         greedy_options = torch.argmax(option_values, dim=-1)
         random_options = torch.cuda.FloatTensor(np.random.randint(N_OPTIONS, size=mb_size)).long()
@@ -284,7 +284,7 @@ class QUOTA(object):
             # self.target_net.load_state_dict(self.pred_net.state_dict())
     
         b_s, b_a, b_r, b_s_, b_d, options= self.replay_buffer.sample(BATCH_SIZE)
-   
+    
         b_s = torch.FloatTensor(b_s)
         b_a = torch.LongTensor(b_a)
         b_r = torch.FloatTensor(b_r)
