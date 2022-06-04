@@ -1,3 +1,4 @@
+#encoding:utf-8
 ###########################################################################################
 # Implementation of Implicit Quantile Networks (IQN)
 # Author for codes: sungyubkim, Chu Kun(kun_chu@outlook.com)
@@ -90,7 +91,7 @@ class ConvNet(nn.Module):
         super(ConvNet, self).__init__()
 
         self.feature_extraction = nn.Sequential(
-        	# Conv2d(输入channels, 输出channels, kernel_size, stride)
+            # Conv2d(输入channels, 输出channels, kernel_size, stride)
             nn.Conv2d(STATE_LEN, 32, kernel_size=8, stride=4),
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=4, stride=2),
@@ -217,7 +218,6 @@ class DQN(object):
             self.update_target(self.target_net, self.pred_net, 1e-2)
     
         b_s, b_a, b_r, b_s_, b_d = self.replay_buffer.sample(BATCH_SIZE)
-        print(b_d)
         b_w, b_idxes = np.ones_like(b_r), None
             
         b_s = torch.FloatTensor(b_s)
