@@ -26,7 +26,7 @@ parser.add_argument('games', type=str, nargs=1, help='name of the games. for exa
 args = parser.parse_args()
 args.games = "".join(args.games)
 
-'''DQN settings'''
+'''C51 settings'''
 # sequential images to define state
 STATE_LEN = 4
 # target policy sync interval
@@ -86,7 +86,7 @@ RESULT_PATH = './data/plots/C51_result_'+args.games+'.pkl'
 class ConvNet(nn.Module):
     def __init__(self):
         super(ConvNet, self).__init__()
-        # nn.Sequential을 사용하면 다음과 같입 코드를 간결하게 바꿀 수 있습니다.
+        # nn.Sequential 
         self.feature_extraction = nn.Sequential(
             nn.Conv2d(STATE_LEN, 32, kernel_size=8, stride=4),
             nn.ReLU(),

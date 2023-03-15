@@ -27,7 +27,7 @@ parser.add_argument('games', type=str, nargs=1, help='name of the games. for exa
 args = parser.parse_args()
 args.games = "".join(args.games)
 
-'''DQN settings'''
+'''IQN settings'''
 # sequential images to define state
 STATE_LEN = 4
 # target policy sync interval
@@ -91,7 +91,7 @@ class ConvNet(nn.Module):
         super(ConvNet, self).__init__()
 
         self.feature_extraction = nn.Sequential(
-            # Conv2d(输入channels, 输出channels, kernel_size, stride)
+            # Conv2d(Input channels, Output channels, kernel_size, stride)
             nn.Conv2d(STATE_LEN, 32, kernel_size=8, stride=4),
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=4, stride=2),
@@ -134,7 +134,7 @@ class ConvNet(nn.Module):
         rand_feat = F.relu(self.phi(cos_trans).mean(dim=1) + self.phi_bias.unsqueeze(0)).unsqueeze(0) 
         # (1, N_QUANT, 7 * 7 * 64)
         x = x.view(x.size(0), -1).unsqueeze(1)  # (m, 1, 7 * 7 * 64)
-        # Zτ(x,a) ≈ f(ψ(x) @ φ(τ))a  @表示按元素相乘
+        # Zτ(x,a) ≈ f(ψ(x) @ φ(τ))a 
         x = x * rand_feat                       # (m, N_QUANT, 7 * 7 * 64)
         x = F.relu(self.fc(x))                  # (m, N_QUANT, 512)
         
@@ -232,12 +232,11 @@ class DQN(object):
         # action value distribution prediction
         q_eval, q_eval_tau = self.pred_net(b_s) 	# (m, N_ACTIONS, N_QUANT), (N_QUANT, 1)
         mb_size = q_eval.size(0)
-        # squeeze去掉第一维
-        # torch.stack函数是将矩阵进行叠加，默认dim=0，即将[]中的n个矩阵变成n维
-        # index_select函数是进行索引查找。
+        # squeeze 
+        # torch.stack: superimpose the matrix, the default dim=0, that is, the n matrices in [] become n-dimensional
         q_eval = torch.stack([q_eval[i].index_select(0, b_a[i]) for i in range(mb_size)]).squeeze(1) 
         # (m, N_QUANT)
-        # 在q_eval第二维后面加一个维度
+        # Add a dimension after the second dimension of q_eval
         q_eval = q_eval.unsqueeze(2) 				# (m, N_QUANT, 1)
         # note that dim 1 is for present quantile, dim 2 is for next quantile
         
@@ -249,7 +248,7 @@ class DQN(object):
         # q_target = R + gamma * (1 - terminate) * q_next
         q_target = b_r.unsqueeze(1) + GAMMA * (1. -b_d.unsqueeze(1)) * q_next 
         # q_target: (m, N_QUANT)
-        # detach表示该Variable不更新参数
+        # detach: the Variable does not update the parameters
         q_target = q_target.unsqueeze(1).detach() # (m , 1, N_QUANT)
 
         # quantile Huber loss

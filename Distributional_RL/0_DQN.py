@@ -19,7 +19,6 @@ from collections import deque
 import matplotlib.pyplot as plt
 from wrappers import wrap, wrap_cover, SubprocVecEnv
 
-# 处理输入参数（游戏名称）
 import argparse
 parser = argparse.ArgumentParser(description='Some settings of the experiment.')
 parser.add_argument('games', type=str, nargs=1, help='name of the games. for example: Breakout')
@@ -39,7 +38,7 @@ MEMORY_CAPACITY = int(1e+5)
 LEARN_FREQ = 4
 
 '''Environment Settings'''
-# number of environments for C51
+# number of environments for DQN
 N_ENVS = 16
 # Total simulation step
 STEP_NUM = int(1e+8)
@@ -80,7 +79,7 @@ class ConvNet(nn.Module):
         super(ConvNet, self).__init__()
         
         self.feature_extraction = nn.Sequential(
-        	# Conv2d(输入channels, 输出channels, kernel_size, stride)
+        	# Conv2d(Input channels, Output channels, kernel_size, stride)
             nn.Conv2d(STATE_LEN, 32, kernel_size=8, stride=4),
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=4, stride=2),
@@ -93,7 +92,7 @@ class ConvNet(nn.Module):
         # action value
         self.fc_q = nn.Linear(512, N_ACTIONS) 
         
-        # 初始化参数值    
+        # Initialization    
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 # nn.init.orthogonal_(m.weight, gain = np.sqrt(2))
@@ -167,7 +166,7 @@ class DQN(object):
         if USE_GPU:
             x = x.cuda()
 
-        # epsilon-greedy策略
+        # epsilon-greedy policy
         if np.random.uniform() >= EPSILON:
             # greedy case
             action_value = self.pred_net(x) 	# (N_ENVS, N_ACTIONS, N_QUANT)

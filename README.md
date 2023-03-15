@@ -1,7 +1,9 @@
 # Deep Reinforcement Learning Codes
 Currently, there are only the codes for distributional reinforcement learning here. 
 
-The codes for C51, QR-DQN, and IQN are a slight change from [sungyubkim](<https://github.com/sungyubkim/Deep_RL_with_pytorch/tree/master/6_Uncertainty_in_RL>). QUOTA is implemented based on the work of the algorithm's author: [Shangtong Zhang](<https://github.com/ShangtongZhang>). 
+The codes for C51, QR-DQN, and IQN are a slight change from [sungyubkim](<https://github.com/sungyubkim/Deep_RL_with_pytorch/tree/master/6_Uncertainty_in_RL>). 
+
+QUOTA is implemented based on the work of the algorithm's author: [Shangtong Zhang](<https://github.com/ShangtongZhang>). 
 
 Always up for a chat -- shoot me an email (kun_chu@outlook.com) if you'd like to discuss anything.
 

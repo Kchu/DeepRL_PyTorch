@@ -129,7 +129,7 @@ class ConvNet(nn.Module):
         super(ConvNet, self).__init__()
 
         self.feature_extraction = nn.Sequential(
-            # Conv2d(输入channels, 输出channels, kernel_size, stride)
+            # Conv2d(Inputchannels, Outputchannels, kernel_size, stride)
             nn.Conv2d(STATE_LEN, 32, kernel_size=8, stride=4),
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=4, stride=2),
